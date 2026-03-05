@@ -1335,22 +1335,21 @@ function shouldAutoContinue() {
   if (!lastAI) return false;
   const t = lastAI.content;
 
-  // 현재 화면에 보이는 마지막 세그먼트 텍스트 기준으로 판단
-  // 전체 응답(t) 대신 마지막 세그먼트를 쓰면 "이의 있으세요? 없으면 시아 씨 발언입니다"처럼
-  // 한 응답에 유저+AI 언급이 함께 있을 때 마지막 흐름을 정확히 감지 가능
+  // 마지막으로 화면에 표시된 세그먼트 텍스트 기준으로 판단
   const lastSeg = [...turnSegs].reverse().find(s => !s._sub && s.type !== 'aud');
   const checkText = (lastSeg ? lastSeg.text : '') || t;
 
   const userTurnCue = /(김몰입|유저).{0,30}(발언|말씀|차례|해주세요|마이크|입장|이의)/.test(checkText);
   const noUserTurn = !userTurnCue;
 
+  // AI 이름을 명시적으로 불렀을 때만 auto-continue (mcEndedNoUserCue 제거)
+  // 이유: MC가 유저 이름 없이 질문해도 mcEndedNoUserCue가 발동되어 입력창이 차단되는 버그
   const passToAI = /(시아|젬파이어).{0,60}(발언|말씀|마이크|차례|해주|드리겠|부탁|들어보|넘기|시작)/.test(checkText) && noUserTurn;
   const aiEndedTurn = !!(lastSeg && (lastSeg.type === 'sia' || lastSeg.type === 'gem') && noUserTurn);
 
   const isEndScenario = /(투표|판정\s*시간|정리.*끝|종료|수고하셨|마쳤습니다|결과를\s*발표)/.test(t);
-  const mcEndedNoUserCue = !!(lastSeg && lastSeg.type === 'mc' && noUserTurn && !isEndScenario);
 
-  return passToAI || aiEndedTurn || mcEndedNoUserCue;
+  return (passToAI || aiEndedTurn) && !isEndScenario;
 }
 
 async function triggerAutoContinue() {
