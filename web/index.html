@@ -438,7 +438,7 @@ SIA, Sia, MC, 젬, Gempire 등 변형 표기는 절대 금지.
   예: 시아는 젬파이어에게 1회 + 김몰입에게 1회(팀 무관) / 젬파이어도 동일
 - 유저(김몰입)도 같은 팀 AI 패널에게 이의 제기 가능
 - 이의 제기 시작 시 엄근진은 "이의 제기가 들어왔습니다! 상대 발언에 최대 다섯 번까지 반박하실 수 있습니다" 식으로 선언
-- 매 반박 시 엄근진은 "[N번째 반박입니다]" 식으로 회차를 자연스럽게 언급
+- 매 반박 시 엄근진은 "이번이 N번째 반박입니다," 식으로 대사 안에 자연스럽게 녹여서 언급 (괄호로 감싼 표기 절대 금지)
 - 5회 완료 시 엄근진이 "이의 제기 5회가 모두 소진되었습니다. 제가 정리하겠습니다" 식으로 개입 후 마무리
 
 ## 같은 팀 이의제기 — MC 반응 (매우 중요)
@@ -1005,6 +1005,8 @@ function parseResponse(raw) {
     if (matched) continue;
     const cm = t.match(/^\[(코멘트|리액션)\]\s*(.*)/);
     if (cm) { if (cur) cur.comment = (cur.comment ? cur.comment + '  ' : '') + cm[2]; continue; }
+    // 괄호로만 이루어진 메타 태그 라인 건너뜀 ([2번째 반박입니다] 등 AI 내부 지시문)
+    if (/^\[[^\]]{1,60}\]\s*$/.test(t)) continue;
     if (cur) cur.text += (cur.text ? '\n' : '') + t;
   }
   flush(); return segs;
@@ -1333,19 +1335,18 @@ function shouldAutoContinue() {
   if (!lastAI) return false;
   const t = lastAI.content;
 
-  // 유저(김몰입)에게 명시적으로 발언권을 넘기는 패턴인지 정밀 체크
-  // 단순 mentions('김몰입')이 아닌 "발언권 지정" 패턴만 감지
-  const userTurnCue = /(김몰입|유저).{0,30}(발언|말씀|차례|해주세요|마이크|입장|이의)/.test(t);
+  // 현재 화면에 보이는 마지막 세그먼트 텍스트 기준으로 판단
+  // 전체 응답(t) 대신 마지막 세그먼트를 쓰면 "이의 있으세요? 없으면 시아 씨 발언입니다"처럼
+  // 한 응답에 유저+AI 언급이 함께 있을 때 마지막 흐름을 정확히 감지 가능
+  const lastSeg = [...turnSegs].reverse().find(s => !s._sub && s.type !== 'aud');
+  const checkText = (lastSeg ? lastSeg.text : '') || t;
+
+  const userTurnCue = /(김몰입|유저).{0,30}(발언|말씀|차례|해주세요|마이크|입장|이의)/.test(checkText);
   const noUserTurn = !userTurnCue;
 
-  // MC가 AI 패널에게 발언권 넘기는 패턴 — "들어보겠습니다", "넘기겠습니다" 등 추가
-  const passToAI = /(시아|젬파이어).{0,60}(발언|말씀|마이크|차례|해주|드리겠|부탁|들어보|넘기|시작)/.test(t) && noUserTurn;
-
-  // AI 패널 발언으로 끝났고 유저 차례 지정이 없는 경우
-  const lastSeg = [...turnSegs].reverse().find(s => !s._sub && s.type !== 'aud');
+  const passToAI = /(시아|젬파이어).{0,60}(발언|말씀|마이크|차례|해주|드리겠|부탁|들어보|넘기|시작)/.test(checkText) && noUserTurn;
   const aiEndedTurn = !!(lastSeg && (lastSeg.type === 'sia' || lastSeg.type === 'gem') && noUserTurn);
 
-  // MC가 정리했지만 다음 발언자 지시 없이 끝난 경우 (AI-AI 티키타카 후 등)
   const isEndScenario = /(투표|판정\s*시간|정리.*끝|종료|수고하셨|마쳤습니다|결과를\s*발표)/.test(t);
   const mcEndedNoUserCue = !!(lastSeg && lastSeg.type === 'mc' && noUserTurn && !isEndScenario);
 
