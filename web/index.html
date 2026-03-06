@@ -563,8 +563,8 @@ SIA, Sia, MC, 젬, Gempire 등 변형 표기는 절대 금지.
 - 엄근진: / 시아(A): / 젬파이어(B): / 유저(이름):
 - 코멘트는 [코멘트] [리액션] 사용
 - 유저 발언 중 웃기거나 인상적인 포인트가 있으면 그 직후 엄근진 발언에 [별명: XXX] 태그를 딱 한 번 포함할 것 (매번 아님, 정말 임팩트 있을 때만)
-- 별명은 보기만 해도 배꼽 빠질 정도로 황당하고 과장되게 지을 것. 8자 이내. 절대 평범·무난하게 짓지 말 것. 읽는 순간 "이게 뭐야 ㅋㅋ" 소리 나와야 성공.
-- 예: 감성 과잉 → [별명: 눈물샘파열왕], 억지 논리 → [별명: 뇌피셜제조기], 강하게 밀기 → [별명: 인간멈추지마], 엉뚱 → [별명: 외계수신중], 자신감 폭발 → [별명: 나혼자다맞음], 말 많음 → [별명: 10분은기본], 말 없음 → [별명: 침묵의군주], 뜬금포 → [별명: 뜬금국보1호], 혼돈 → [별명: 혼돈그자체]
+- 별명은 보기만 해도 배꼽 빠질 정도로 황당하고 과장되게 지을 것. 최대 4자, 짧을수록 좋음. 절대 평범·무난하게 짓지 말 것. 읽는 순간 "이게 뭐야 ㅋㅋ" 소리 나와야 성공.
+- 예: 감성 과잉 → [별명: 눈물왕], 억지 논리 → [별명: 뇌피셜], 강하게 밀기 → [별명: 불도저], 엉뚱 → [별명: 외계인], 자신감 폭발 → [별명: 내가맞음], 말 많음 → [별명: 10분], 말 없음 → [별명: 침묵], 뜬금포 → [별명: 뜬금포], 혼돈 → [별명: 혼돈]
 - 방청객 반응: "👥 방청객:" 으로 시작하는 별도 줄
   형식: 👥 방청객: 반응1 / 반응2 / 반응3
 
@@ -859,9 +859,6 @@ async function sendMessage() {
   const isInterrupt = segQueue.length > 0;
   if (isInterrupt) segQueue = [];
 
-  const nm = text.match(/저는?\s*([^\s,이고가은는]+)/);
-  if (nm) playerName = nm[1];
-
   const tm = text.match(/^주제변경:\s*(.+)/);
   if (tm) updateTopic(tm[1]);
 
@@ -872,16 +869,14 @@ async function sendMessage() {
     updateVP('uchar');
     setSpeakerBar('uchar');
     if (playerTeam) {
+      document.getElementById('sp-name').textContent = playerName || '유저';
+      document.getElementById('sp-name').style.display = '';
       if (userNickname) {
-        document.getElementById('sp-name').textContent = `"${userNickname}"`;
-        document.getElementById('sp-name').style.display = '';
+        document.getElementById('sp-sep').style.display = '';
+        document.getElementById('sp-stance').textContent = userNickname;
+      } else {
         document.getElementById('sp-sep').style.display = 'none';
         document.getElementById('sp-stance').textContent = '';
-      } else {
-        document.getElementById('sp-name').textContent = playerName || '유저';
-        document.getElementById('sp-name').style.display = '';
-        document.getElementById('sp-sep').style.display = '';
-        document.getElementById('sp-stance').textContent = playerTeam === 'A' ? 'A팀 패널' : 'B팀 패널';
       }
       document.getElementById('speaker-bar').style.background = playerTeam === 'A' ? '#2E3BB0' : '#B01A1A';
     }
@@ -1473,9 +1468,8 @@ function updateUserNicknameDisplay() {
   const sepEl = document.getElementById('sp-sep');
   // 현재 유저가 스피커바에 표시 중일 때만 반영
   if (nameEl && (nameEl.textContent === playerName || nameEl.textContent === '유저')) {
-    nameEl.textContent = `"${userNickname}"`;
-    if (stanceEl) stanceEl.textContent = '';
-    if (sepEl) sepEl.style.display = 'none';
+    if (stanceEl) stanceEl.textContent = userNickname;
+    if (sepEl) sepEl.style.display = '';
   }
 }
 
