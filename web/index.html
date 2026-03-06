@@ -253,6 +253,42 @@ html,body{height:100%;background:#0f0f1a;display:flex;align-items:center;justify
 .wait-dots span{width:10px;height:10px;border-radius:50%;background:var(--gold);animation:db 1.1s ease-in-out infinite;}
 .wait-dots span:nth-child(2){animation-delay:.2s}.wait-dots span:nth-child(3){animation-delay:.4s}
 .hidden{display:none!important;}
+
+/* ── PROFILE SCREEN ── */
+#s-profile{background:radial-gradient(ellipse at 50% 20%,#1a1040,#06060f);overflow-y:auto;flex-direction:column;align-items:stretch;}
+.prof-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:8px 0 24px;}
+.prof-hdr{padding:16px 16px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.prof-back-arrow{background:none;border:none;color:rgba(255,255,255,.6);font-size:26px;cursor:pointer;padding:0;width:36px;line-height:1;transition:color .15s;}
+.prof-back-arrow:hover{color:#fff;}
+.prof-nick-lbl{font-family:'Black Han Sans',sans-serif;font-size:17px;color:var(--text);letter-spacing:2px;text-align:center;flex:1;}
+.prof-avatar-area{display:none;}
+.prof-avi{font-size:64px;line-height:1;filter:drop-shadow(0 4px 20px rgba(0,0,0,.5));}
+.prof-persona-name{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--gold);text-align:center;letter-spacing:2px;text-shadow:0 0 20px rgba(255,215,0,.45);padding:16px 20px 4px;flex-shrink:0;}
+.prof-analyzing{font-size:11px;color:var(--dim);text-align:center;padding:0 0 4px;flex-shrink:0;min-height:16px;}
+.prof-analyzing.pulse{animation:pulse-dim 1.2s ease-in-out infinite;}
+@keyframes pulse-dim{0%,100%{opacity:.3}50%{opacity:.9}}
+.prof-matrix-section{padding:0 24px;flex-shrink:0;}
+.pml-top-lbl,.pml-bot-lbl{text-align:center;font-size:10px;color:rgba(255,255,255,.3);letter-spacing:2px;padding:3px 0;}
+.pml-mid{display:flex;align-items:center;gap:5px;}
+.pml-side{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;flex-shrink:0;writing-mode:vertical-rl;padding:2px 0;}
+.pml-side.right{}
+.prof-grid-outer{position:relative;flex:1;aspect-ratio:1;}
+.prof-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:2px;background:rgba(0,0,0,.4);border-radius:8px;overflow:hidden;}
+.hist-dot{position:absolute;width:7px;height:7px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:5;transition:opacity .3s;}
+.hist-dot-past{background:rgba(255,215,0,.35);box-shadow:0 0 4px rgba(255,215,0,.2);}
+.hist-dot-cur{background:var(--gold);box-shadow:0 0 10px rgba(255,215,0,.9);width:9px;height:9px;}
+.pg-cell{display:flex;align-items:center;justify-content:center;text-align:center;font-size:8.5px;color:rgba(255,255,255,.2);background:rgba(255,255,255,.03);line-height:1.3;padding:4px 2px;word-break:keep-all;transition:all .4s ease;}
+.pg-cell.ctr-zone{color:rgba(180,140,255,.3);}
+.pg-cell.hit{border:1.5px solid rgba(255,215,0,.75);box-shadow:0 0 16px rgba(255,215,0,.45),inset 0 0 20px rgba(255,215,0,.1);color:var(--gold);font-weight:700;font-size:9.5px;animation:cell-pop .45s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes cell-pop{0%{transform:scale(.75)}100%{transform:scale(1)}}
+.pg-cell.ctr-zone.hit{border-color:rgba(200,160,255,.7);box-shadow:0 0 16px rgba(150,80,255,.4),inset 0 0 20px rgba(120,60,220,.15);color:#c8a0ff;}
+.prof-stats-row{display:flex;justify-content:center;gap:36px;padding:18px 0 8px;flex-shrink:0;}
+.pst-item{text-align:center;}
+.pst-val{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--gold);}
+.pst-lbl{font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:2px;}
+.prof-back-btn{display:none;}
+.prof-icon-btn{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:6px 10px;font-size:16px;cursor:pointer;transition:all .2s;}
+.prof-icon-btn:hover{background:rgba(255,215,0,.15);border-color:rgba(255,215,0,.3);}
 </style>
 </head>
 <body>
@@ -270,7 +306,8 @@ html,body{height:100%;background:#0f0f1a;display:flex;align-items:center;justify
 
   <!-- ══ LOBBY ══ -->
   <div id="s-lobby" class="screen hidden">
-    <div class="lobby-top">
+    <div class="lobby-top" style="position:relative;">
+      <button class="prof-icon-btn" onclick="showProfileFromLobby()" title="내 프로필">📊</button>
       <div class="lobby-title">🎙️ 토론 배틀 쇼</div>
       <div class="lobby-sub">역할을 선택하고 토론에 참여하세요</div>
       <div class="topic-wrap">
@@ -382,6 +419,47 @@ html,body{height:100%;background:#0f0f1a;display:flex;align-items:center;justify
 
   </div>
 
+  <!-- ══ PROFILE ══ -->
+  <div id="s-profile" class="screen hidden">
+    <div class="prof-hdr">
+      <button class="prof-back-arrow" onclick="returnToLobby()">‹</button>
+      <div class="prof-nick-lbl" id="prof-nick">내 프로필</div>
+      <div style="width:36px;"></div>
+    </div>
+    <div class="prof-avatar-area">
+      <div class="prof-avi" id="prof-avi">🙋</div>
+    </div>
+    <div class="prof-body">
+    <div class="prof-persona-name" id="prof-persona">⏳ 분석 중...</div>
+    <div class="prof-analyzing pulse" id="prof-analyzing">AI가 발언 패턴을 분석하고 있어요</div>
+    <div class="prof-matrix-section">
+      <div class="pml-top-lbl">감 정</div>
+      <div class="pml-mid">
+        <div class="pml-side">진 지</div>
+        <div class="prof-grid-outer">
+          <div id="prof-grid" class="prof-grid"></div>
+        </div>
+        <div class="pml-side right">위 트</div>
+      </div>
+      <div class="pml-bot-lbl">논 리</div>
+    </div>
+    <div class="prof-stats-row">
+      <div class="pst-item">
+        <div class="pst-val" id="pst-result">-</div>
+        <div class="pst-lbl">총 판수</div>
+      </div>
+      <div class="pst-item">
+        <div class="pst-val" id="pst-score">-</div>
+        <div class="pst-lbl">승리</div>
+      </div>
+      <div class="pst-item hidden" id="pst-streak-wrap">
+        <div class="pst-val" id="pst-streak" style="color:#ff9900;">-</div>
+        <div class="pst-lbl" style="color:#ff9900;">🔥 연승</div>
+      </div>
+    </div>
+    </div> <!-- /.prof-body -->
+  </div>
+
   <!-- ══ OVERLAYS ══ -->
   <div id="obj-overlay" class="hidden">
     <div class="burst-bg"></div>
@@ -459,9 +537,14 @@ SIA, Sia, MC, 젬, Gempire 등 변형 표기는 절대 금지.
 - 단독 발언 시간에서 시아, 젬파이어, 김몰입이 각 1회 이상 발언을 마치고 추가 이의 제기 없이 흐름이 마무리되면, 엄근진이 스스로 판정 시간으로 전환한다
 - 엄근진이 "자, 모든 패널의 발언이 끝났습니다. 이제 판정 시간입니다!" 식으로 자연스럽게 선언
 - 엄근진 정리 2~3줄 → 투표 결과 반드시 "A팀 XX% vs B팀 XX%" 형식으로 발표
-- 투표 결과 발표 직후, 별도 명령 없이 엄근진이 자연스럽게 "마지막으로 각 패널 한 말씀씩 부탁드립니다" 식으로 소감을 유도
-- 시아 소감 1줄 → 젬파이어 소감 1줄 → 엄근진이 반드시 "김몰입 씨, 마지막으로 한 말씀 부탁드립니다!" 라고 마이크를 넘길 것
-- 김몰입 소감 수령 후 → 엄근진 수고 인사로 마무리
+- 투표 결과 발표 직후, 시아 소감 1줄 → 젬파이어 소감 1줄 → 엄근진이 반드시 "김몰입 씨, 마지막으로 한 말씀 부탁드립니다!" 라고 마이크를 넘길 것
+- 김몰입 소감 수령 후 엄근진이 수고 인사를 하지 않음 (소감 요청까지만, 마무리 인사는 별도 진행)
+
+# 유저 인터럽트 처리 (매우 중요)
+- 김몰입은 언제든지 발언할 수 있다. 타이밍이 맞지 않아도 제지하지 말고 자연스럽게 받아줄 것
+- 자기소개/발언 순서가 아닌데 끼어들면: "오, 김몰입 씨 참지 못하셨군요! 먼저 말씀해보시죠" 등 코믹하게 수용
+- 맥락과 전혀 무관한 헛소리면: 엄근진이 "잠깐, 김몰입 씨 지금 저희 방송 맞죠?" 식으로 유머러스하게 제지 후 진행
+- 어떤 상황에서도 유저 발언을 무시하지 말 것
 
 # 금지 표현 (엄근진 절대 사용 금지)
 "PHASE 1", "PHASE 2", "PHASE 3", "페이즈", "맞불 토론", "티키타카" — 대신 "자기소개 시간", "단독 발언 시간", "이의 제기", "판정 시간" 등 실제 방송 용어 사용
@@ -517,6 +600,7 @@ function buildPrompt() {
 
 // ── STATE ──────────────────────────────────────────────────────
 let apiKey = '', history = [], playerName = '김몰입', playerTeam = '', playerRole = '';
+let userMessages = [], lastVote = null;
 let isLoading = false, speakTimer = null;
 let objectionUsed = new Set();   // "kim→sia", "kim→gem", "sia→kim", "gem→kim"
 let tikitakaRound = 0, tikitakaActive = false, tikitakaPair = null;
@@ -735,23 +819,47 @@ async function sendMessage() {
   if (!text) return;
   input.value = '';
 
+  // 엔딩 소감 모드: 유저 소감 받고 → 투표 결과 표시 후 종료
+  if (awaitingClose) {
+    awaitingClose = false;
+    updateVP('uchar'); setSpeakerBar('uchar');
+    if (playerName) document.getElementById('sp-name').textContent = playerName;
+    setMsText(text);
+    history.push({ role:'user', content:text });
+    userMessages.push(text);
+    await new Promise(r => setTimeout(r, 1800));
+    if (pendingVote) { setMsVoteBlock(pendingVote.a, pendingVote.b); pendingVote = null; }
+    isShowEnded = true;
+    setTimeout(showLobbyReturnBtn, 2500);
+    return;
+  }
+
+  // 인터럽트 여부 판단 (큐 클리어 전)
+  const isInterrupt = segQueue.length > 0;
+  if (isInterrupt) segQueue = [];
+
   const nm = text.match(/저는?\s*([^\s,이고가은는]+)/);
   if (nm) playerName = nm[1];
 
   const tm = text.match(/^주제변경:\s*(.+)/);
   if (tm) updateTopic(tm[1]);
 
-  // 유저 발언을 메인 디스플레이에 표시 (타이핑 효과)
-  updateVP('uchar');
-  setSpeakerBar('uchar');
-  if (playerName) document.getElementById('sp-name').textContent = playerName;
-  if (playerTeam) {
-    document.getElementById('sp-stance').textContent = playerTeam === 'A' ? 'A팀 패널' : 'B팀 패널';
-    document.getElementById('speaker-bar').style.background = playerTeam === 'A' ? '#2E3BB0' : '#B01A1A';
+  // 인터럽트 → 말풍선, 정상 발언 → 메인 디스플레이
+  if (isInterrupt) {
+    spawnFloatBubble(text, 'uchar');
+  } else {
+    updateVP('uchar');
+    setSpeakerBar('uchar');
+    if (playerName) document.getElementById('sp-name').textContent = playerName;
+    if (playerTeam) {
+      document.getElementById('sp-stance').textContent = playerTeam === 'A' ? 'A팀 패널' : 'B팀 패널';
+      document.getElementById('speaker-bar').style.background = playerTeam === 'A' ? '#2E3BB0' : '#B01A1A';
+    }
+    setMsText(text);
   }
-  setMsText(text);  // 유저 발언 표시 — AI 응답 올 때까지 유지
 
   history.push({ role:'user', content:text });
+  userMessages.push(text);
 
   // 티키타카 진행 중이면 라운드 카운터 증가
   if (tikitakaActive) {
@@ -1081,12 +1189,9 @@ function chunkText(text, maxLen = 55) {
 function advanceQueue() {
   if (segQueue.length === 0) {
     setNextBtn(false);
-    // 투표 결과 → 소감 시퀀스
+    // 투표 결과 → 유저 소감 대기 (awaitingClose=true 유지, sendMessage에서 처리)
     if (awaitingClose && !isLoading) {
-      awaitingClose = false;
-      if (pendingVote) { setMsVoteBlock(pendingVote.a, pendingVote.b); pendingVote = null; }
-      setTimeout(triggerClosingSequence, 2200);
-      return;
+      return; // 유저가 소감을 입력할 때까지 대기
     }
     // 쇼 종료 → 로비 버튼
     if (isShowEnded) { showLobbyReturnBtn(); return; }
@@ -1172,7 +1277,6 @@ function goBack() {
   // 리뷰 중: 다음 버튼이 앞으로 이동하도록
   const btn = document.getElementById('send-btn');
   if (btn) { btn.textContent = '다음 ▶'; btn.disabled = false; btn.onclick = handleNextClick; }
-  document.getElementById('user-input').disabled = true;
 }
 
 // 다음 클릭: 타이핑 스킵 → 히스토리 앞으로 → 큐 진행
@@ -1214,7 +1318,6 @@ function setNextBtn(show, label) {
     btn.textContent = label || '다음 ▶';
     btn.disabled = false;
     btn.onclick = handleNextClick;
-    inp.disabled = true;
     if (presets) presets.classList.add('hidden');
   } else {
     btn.textContent = '전송';
@@ -1243,12 +1346,20 @@ async function triggerClosingSequence() {
 
 function showLobbyReturnBtn() {
   if (document.getElementById('lobby-return-btn')) return;
+  const profBtn = document.createElement('button');
+  profBtn.id = 'prof-view-btn';
+  profBtn.className = 'lobby-return';
+  profBtn.textContent = '📊 내 토론 성격 보기';
+  profBtn.style.cssText = 'background:linear-gradient(135deg,#6d28d9,#3B4DD4);margin-bottom:6px;';
+  profBtn.onclick = showProfileScreen;
+  document.getElementById('main-speech').after(profBtn);
   const btn = document.createElement('button');
   btn.id = 'lobby-return-btn';
   btn.className = 'lobby-return';
+  btn.style.cssText = 'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);box-shadow:none;';
   btn.textContent = '🏠 다시 토론하기';
   btn.onclick = returnToLobby;
-  document.getElementById('main-speech').after(btn);
+  profBtn.after(btn);
 }
 
 function returnToLobby() {
@@ -1258,14 +1369,17 @@ function returnToLobby() {
   tikitakaActive = false; tikitakaPair = null; tikitakaRound = 0;
   isLoading = false; isShowEnded = false; awaitingClose = false; pendingVote = null;
   playerRole = null; playerTeam = null;
+  userMessages = []; lastVote = null;
   clearInterval(voteCountdown);
   VP_CFG.uchar.bar = '#2E3BB0'; VP_CFG.uchar.stance = '유저 패널';
   BUB_CFG.uchar.color = '#336633'; BUB_CFG.uchar.tail = 'bub-left'; BUB_CFG.uchar.xFn = (i) => `left:8px`;
   const btn = document.getElementById('lobby-return-btn');
   if (btn) btn.remove();
+  const profBtn = document.getElementById('prof-view-btn');
+  if (profBtn) profBtn.remove();
   document.getElementById('lobby-topic').value = '';
   shuffleTopic();
-  show('s-lobby'); hide('s-game');
+  show('s-lobby'); hide('s-game'); hide('s-profile');
 }
 
 // ── VOTE SYSTEM ─────────────────────────────────────────────────
@@ -1274,6 +1388,7 @@ function detectVote(text) {
   // 큐가 비면 그래픽 표시 → awaitingClose로 닫기 시퀀스 예약
   if (pcts.length >= 2 && !isShowEnded && !awaitingClose) {
     pendingVote = { a: pcts[0], b: pcts[1] };
+    lastVote = { a: pcts[0], b: pcts[1] };
     awaitingClose = true;
   }
   // 방청객 전용 투표 오버레이 (명시적 종료 신호만)
@@ -1407,6 +1522,243 @@ function detectPhase(text) {
 function show(id) { document.getElementById(id).classList.remove('hidden'); }
 function hide(id) { document.getElementById(id).classList.add('hidden'); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── PERSONA PROFILE ─────────────────────────────────────────────
+const PERSONAS = [
+  ['고결한 구도자',   '신중한 휴머니스트', '다정한 조력자',   '토론장의 비타민'],
+  ['진지한 사색가',   '따뜻한 상담가',    '낭만적 이야기꾼', '분위기 메이커'],
+  ['엄격한 원칙주의자','합리적 중재자',   '유쾌한 교수님',   '지식의 엔터테이너'],
+  ['냉혹한 심판관',   '정교한 분석가',    '촌철살인 풍자가', '우주급 궤변 창조주'],
+];
+
+function getCellBg(r, c, isHit) {
+  const tr = r / 3, tc = c / 3;
+  const dr = Math.abs(tr - 0.5) * 2;
+  const dc = Math.abs(tc - 0.5) * 2;
+  const intensity = Math.min(1, Math.sqrt(dr * dr + dc * dc) / Math.SQRT2);
+  // 4 corner colors: [감정+진지, 감정+위트, 논리+진지, 논리+위트]
+  const tl = [165, 45, 75],  tr2 = [215, 75, 55];
+  const bl = [40,  65, 195], br  = [35, 145, 210];
+  const top = [0,1,2].map(i => tl[i] * (1 - tc) + tr2[i] * tc);
+  const bot = [0,1,2].map(i => bl[i] * (1 - tc) + br[i]  * tc);
+  const rgb = [0,1,2].map(i => Math.round(top[i] * (1 - tr) + bot[i] * tr));
+  const alpha = intensity * (isHit ? 0.52 : 0.18);
+  return `rgba(${rgb.join(',')},${alpha.toFixed(2)})`;
+}
+
+function buildGrid(hitRow, hitCol, isCenter) {
+  const grid = document.getElementById('prof-grid');
+  grid.innerHTML = '';
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      const isHit = !isCenter && r === hitRow && c === hitCol;
+      const isCtrHit = isCenter && r >= 1 && r <= 2 && c >= 1 && c <= 2;
+      const cell = document.createElement('div');
+      cell.className = 'pg-cell';
+      if (r >= 1 && r <= 2 && c >= 1 && c <= 2) cell.classList.add('ctr-zone');
+      if (isHit || isCtrHit) cell.classList.add('hit');
+      cell.style.backgroundColor = getCellBg(r, c, isHit || isCtrHit);
+      cell.textContent = PERSONAS[r][c];
+      grid.appendChild(cell);
+    }
+  }
+}
+
+async function showProfileScreen() {
+  show('s-profile'); hide('s-game');
+  document.getElementById('prof-nick').textContent = '내 프로필';
+  document.getElementById('prof-avi').textContent = playerTeam === 'A' ? '🎤' : playerTeam === 'B' ? '🩸' : '🙋';
+  document.getElementById('prof-persona').textContent = '⏳ 분석 중...';
+  document.getElementById('prof-analyzing').textContent = 'AI가 발언 패턴을 분석하고 있어요';
+  document.getElementById('prof-analyzing').classList.add('pulse');
+  buildGrid(-1, -1, false);
+
+  // stats는 analyzePersona → renderPersonaResult → saveGameRecord 후 갱신됨
+
+  if (!userMessages.length) {
+    document.getElementById('prof-persona').textContent = '발언 데이터 없음';
+    document.getElementById('prof-analyzing').textContent = '발언이 없어 분석할 수 없어요';
+    document.getElementById('prof-analyzing').classList.remove('pulse');
+    return;
+  }
+  await analyzePersona();
+}
+
+async function analyzePersona() {
+  const txt = userMessages.join('\n');
+  const sys = `토론 발언 텍스트를 분석해 두 좌표를 JSON으로만 반환해라.
+- serious_wit: -2(매우 진지) ~ +2(매우 위트/유머). 진지→ 하십시오체,전문용어,논리적 접속사 / 위트→ 신조어,드립,ㅋㅋ,이모지,의성어
+- logic_emotion: -2(매우 논리) ~ +2(매우 감정). 논리→ 근거,따라서,통계,왜냐하면 / 감정→ 마음,공감,느낌,슬프,진심
+반드시 JSON만 출력. 예: {"serious_wit":0.8,"logic_emotion":-1.2}`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 64, system: sys, messages: [{ role: 'user', content: txt }] })
+    });
+    if (!r.ok) throw new Error('api ' + r.status);
+    const j = await r.json();
+    const raw = j.content[0].text.trim();
+    const jsonMatch = raw.match(/\{[\s\S]*?\}/);
+    if (!jsonMatch) throw new Error('no json: ' + raw);
+    const coords = JSON.parse(jsonMatch[0]);
+    if (typeof coords.serious_wit !== 'number' || typeof coords.logic_emotion !== 'number') throw new Error('bad coords');
+    renderPersonaResult(coords.serious_wit, coords.logic_emotion);
+  } catch(e) {
+    console.error('analyzePersona error:', e);
+    document.getElementById('prof-persona').textContent = '분석 오류';
+    document.getElementById('prof-analyzing').textContent = e.message || '잠시 후 다시 시도해 주세요';
+    document.getElementById('prof-analyzing').classList.remove('pulse');
+  }
+}
+
+function calcPersonaTier(hist) {
+  if (!hist.length) return null;
+  const cellCounts = {};
+  hist.forEach(rec => {
+    const isCenter = Math.abs(rec.x) < 0.25 && Math.abs(rec.y) < 0.25;
+    const col = rec.x < -1 ? 0 : rec.x < 0 ? 1 : rec.x < 1 ? 2 : 3;
+    const row = rec.y > 1 ? 0 : rec.y > 0 ? 1 : rec.y > -1 ? 2 : 3;
+    const key = isCenter ? 'center' : `${row},${col}`;
+    cellCounts[key] = (cellCounts[key] || 0) + 1;
+  });
+  let maxCount = 0;
+  for (const count of Object.values(cellCounts)) if (count > maxCount) maxCount = count;
+
+  const topKeys = Object.keys(cellCounts).filter(k => cellCounts[k] === maxCount);
+  const isTied = topKeys.length > 1;
+
+  let maxKey;
+  if (isTied) {
+    // 동점이면 최신 판 기준
+    const last = hist[hist.length - 1];
+    const lc = Math.abs(last.x) < 0.25 && Math.abs(last.y) < 0.25;
+    const lCol = last.x < -1 ? 0 : last.x < 0 ? 1 : last.x < 1 ? 2 : 3;
+    const lRow = last.y > 1 ? 0 : last.y > 0 ? 1 : last.y > -1 ? 2 : 3;
+    maxKey = lc ? 'center' : `${lRow},${lCol}`;
+  } else {
+    maxKey = topKeys[0];
+  }
+  const total = hist.length;
+  const ratio = maxCount / total;
+  let row, col, isCenter = false, personaName;
+  if (maxKey === 'center') {
+    isCenter = true; personaName = '포커페이스 장인'; row = 1; col = 1;
+  } else {
+    [row, col] = maxKey.split(',').map(Number);
+    personaName = PERSONAS[row][col];
+  }
+  let tierLabel;
+  if (total < 3)                        tierLabel = '신참 ' + personaName;
+  else if (ratio >= 1.0 && total >= 7)  tierLabel = personaName + ' 본좌';
+  else if (ratio >= 0.7 && total >= 5)  tierLabel = '확고한 ' + personaName;
+  else if (ratio >= 0.5)                tierLabel = personaName;
+  else if (ratio >= 0.3)                tierLabel = '자칭 ' + personaName;
+  else                                  tierLabel = '방랑자';
+  if (isTied) tierLabel += ' (?)';
+  return { row, col, isCenter, tierLabel };
+}
+
+function renderPersonaResult(x, y) {
+  saveGameRecord(x, y);
+  const hist = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+  const result = calcPersonaTier(hist);
+  if (!result) return;
+  const stats = getHistStats(hist);
+  document.getElementById('prof-persona').textContent = result.tierLabel;
+  document.getElementById('pst-result').textContent = stats.total + '판';
+  document.getElementById('pst-score').textContent = stats.wins + '승';
+  const sw = document.getElementById('pst-streak-wrap');
+  if (stats.streak >= 2) { document.getElementById('pst-streak').textContent = stats.streak + '연승'; sw.classList.remove('hidden'); }
+  else { sw.classList.add('hidden'); }
+  document.getElementById('prof-analyzing').classList.remove('pulse');
+  document.getElementById('prof-analyzing').textContent = '';
+  buildGrid(result.row, result.col, result.isCenter);
+  renderHistoryDots(x, y);
+}
+
+function showProfileFromLobby() {
+  show('s-profile'); hide('s-lobby');
+  document.getElementById('prof-nick').textContent = '내 프로필';
+  document.getElementById('prof-avi').textContent = '📊';
+  document.getElementById('prof-analyzing').classList.remove('pulse');
+
+  const hist = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+
+  if (!hist.length) {
+    buildGrid(-1, -1, false);
+    document.getElementById('prof-persona').textContent = '기록 없음';
+    document.getElementById('prof-analyzing').textContent = '아직 토론 기록이 없어요. 한 판 해보세요!';
+    document.getElementById('pst-result').textContent = '0판';
+    document.getElementById('pst-score').textContent = '-%';
+    return;
+  }
+
+  const result = calcPersonaTier(hist);
+  const latest = hist[hist.length - 1];
+  const stats = getHistStats(hist);
+  document.getElementById('prof-persona').textContent = result.tierLabel;
+  document.getElementById('pst-result').textContent = stats.total + '판';
+  document.getElementById('pst-score').textContent = stats.wins + '승';
+  const sw = document.getElementById('pst-streak-wrap');
+  if (stats.streak >= 2) { document.getElementById('pst-streak').textContent = stats.streak + '연승'; sw.classList.remove('hidden'); }
+  else { sw.classList.add('hidden'); }
+  buildGrid(result.row, result.col, result.isCenter);
+  renderHistoryDots(latest.x, latest.y);
+}
+
+// ── HISTORY (localStorage) ───────────────────────────────────────
+const HIST_KEY = 'debate_persona_history';
+
+function saveGameRecord(x, y) {
+  const hist = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+  const won = lastVote
+    ? (playerTeam === 'A' ? lastVote.a > lastVote.b : lastVote.b > lastVote.a)
+    : null;
+  hist.push({ x, y, date: new Date().toISOString().slice(0, 10), team: playerTeam, won });
+  if (hist.length > 20) hist.splice(0, hist.length - 20);
+  localStorage.setItem(HIST_KEY, JSON.stringify(hist));
+}
+
+function getHistStats(hist) {
+  const total = hist.length;
+  const wins = hist.filter(r => r.won === true).length;
+  let streak = 0;
+  for (let i = hist.length - 1; i >= 0; i--) {
+    if (hist[i].won === true) streak++;
+    else if (hist[i].won === false) break;
+  }
+  return { total, wins, streak };
+}
+
+function renderHistoryDots(curX, curY) {
+  const outer = document.querySelector('.prof-grid-outer');
+  document.querySelectorAll('.hist-dot').forEach(d => d.remove());
+
+  const hist = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+  // 현재 저장된 마지막 항목이 방금 saveGameRecord로 추가된 현재 판 — 그 이전 것들이 과거 히스토리
+  const past = hist.slice(0, -1);
+
+  past.forEach(rec => {
+    const dot = document.createElement('div');
+    dot.className = 'hist-dot hist-dot-past';
+    dot.style.left = ((rec.x + 2) / 4 * 100) + '%';
+    dot.style.top  = ((-rec.y + 2) / 4 * 100) + '%';
+    outer.appendChild(dot);
+  });
+
+  // 현재 판 점 (밝게)
+  const curDot = document.createElement('div');
+  curDot.className = 'hist-dot hist-dot-cur';
+  curDot.style.left = ((curX + 2) / 4 * 100) + '%';
+  curDot.style.top  = ((-curY + 2) / 4 * 100) + '%';
+  outer.appendChild(curDot);
+
+  // 판 수 표시
+  const total = hist.length;
+  document.getElementById('prof-analyzing').textContent = '';
+}
 </script>
 </body>
 </html>
